@@ -27,7 +27,7 @@ def resum_exame_execute(pdf_path):
     # Dados da requisição
     data = {
         'data': pdf_base64,
-        'name': 'R831018_0405202417443122419750.pdf',
+        'name': 'EXAME.pdf',
         'mime': 'application/pdf',
         'paciente': base64.b64encode(dados_paciente_bytes).decode('utf-8')
     }
