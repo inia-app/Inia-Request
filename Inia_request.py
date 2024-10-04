@@ -46,15 +46,15 @@ def resum_exame_execute(pdf_path):
 
         # Salvar arquivos, se existirem
         if normal_file_base64:
-            with open('files/normal_file.pdf', 'wb') as normal_file:
+            with open('normal_file.pdf', 'wb') as normal_file:
                 normal_file.write(base64.b64decode(normal_file_base64))
 
         if anormal_file_base64:
-            with open('files/anormal_file.pdf', 'wb') as anormal_file:
+            with open('normal_file.pdf', 'wb') as anormal_file:
                 anormal_file.write(base64.b64decode(anormal_file_base64))
 
         if diagnostic_file_base64:
-            with open('files/diagnostic.docx', 'wb') as diagnostic_file:
+            with open('diagnostic.docx', 'wb') as diagnostic_file:
                 diagnostic_file.write(base64.b64decode(diagnostic_file_base64))
 
         print("Arquivos salvos com sucesso.")
