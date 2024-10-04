@@ -1,8 +1,9 @@
 import requests
 import base64
 import json
+import os
 
-def resum_exame_execute(pdf_path):
+def resum_exame_execute(diretorio, pdf_path, data_de_nascimento, genero, nome_do_paciente = 'PACIENTE'):
     
     url = "https://main-inia-app.vercel.app/api/"
     
@@ -14,11 +15,11 @@ def resum_exame_execute(pdf_path):
         print(f"Arquivo {pdf_path} não encontrado.")
         return
     
-    # Dados do paciente, pegue os inputs inseridos pelo usuário no site
+    # Dados do paciente
     dados_paciente = {
-        'data_de_nascimento': 'DD/MM/AAAA', 
-        'Nome': 'NOME DO PACIENTE',
-        'genero': 'masculino',#'feminino'
+        'data_de_nascimento': data_de_nascimento, 
+        'Nome': nome_do_paciente,
+        'genero': genero, #'feminino'
     }
     
     # Converter os dados do paciente para base64
@@ -43,18 +44,22 @@ def resum_exame_execute(pdf_path):
         anormal_file_base64 = result.get('anormal_file')
         diagnostic_file_base64 = result.get('diagnostic')
         
-
+        if diretorio:
+            if not os.path.exists(diretorio):
+                os.mkdir(diretorio)
+        else:
+            diretorio = ''
         # Salvar arquivos, se existirem
         if normal_file_base64:
-            with open('normal_file.pdf', 'wb') as normal_file:
+            with open(f'{diretorio}/normal_file.pdf', 'wb') as normal_file:
                 normal_file.write(base64.b64decode(normal_file_base64))
 
         if anormal_file_base64:
-            with open('normal_file.pdf', 'wb') as anormal_file:
+            with open(f'{diretorio}/anormal_file.pdf', 'wb') as anormal_file:
                 anormal_file.write(base64.b64decode(anormal_file_base64))
 
         if diagnostic_file_base64:
-            with open('diagnostic.docx', 'wb') as diagnostic_file:
+            with open(f'{diretorio}/diagnostic.docx', 'wb') as diagnostic_file:
                 diagnostic_file.write(base64.b64decode(diagnostic_file_base64))
 
         print("Arquivos salvos com sucesso.")
@@ -68,8 +73,13 @@ def resum_exame_execute(pdf_path):
         print(f"Conteúdo da resposta: {response.text}")
 
 
-#So modifique essa parte
-exame = r"C:\exemplo\SEUEXAME.pdf"                      #89.74
+#diretorio do arquivo
+diretorio = 'files'
+exame = r"SEU_PDF.pdf"
+
+#Preencha os dados do paciente                
+data_de_nascimento = 'DD/MM/AAAA'
+genero = '' #masculino ou feminino
 
 # Chamada da função
-resum_exame_execute(exame) #Passe o path do arquivo pdf
+resum_exame_execute(diretorio = diretorio, pdf_path = exame, data_de_nascimento = data_de_nascimento, genero = genero) #Passe o path do arquivo pdf
