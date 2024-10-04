@@ -12,4 +12,6 @@
 
 ## Retorno
 - Adicione o diretório desejado ex: "C:minhapasta/normal_file.pdf"
-- O arquivo retornado é em pdf. Apenas em pdf. Caso retorne em outro formato, não garantimos a saída esperada.
+- Os arquivos de tabela, são salvos em pdf. Apenas em pdf.
+- O arquivo de diagnóstico retorna em docx.
+- Não garantimos o retorno dos arquivos em outros formatos.
