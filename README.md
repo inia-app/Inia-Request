@@ -1,15 +1,20 @@
-# INIA REQUEST V 1.0.1
+# Inia V1.0.2
 
-## Autorização
-- O INIA permite chamadas não autenticadas de qualquer dispositivo.
+## Requisitando o INIA
 
-## Chamada
-- Como entrada, envie o diretorio do arquivo para função resum_exam-execute()
-- Altere apenas as variáveis:
-  - paciente = NOME DO PACIENTE (opcional)
-  - data_de_nascimento = DATA DE NASCIMENTO DO PACIENTE COM O PADRÃO = "DD/MM/AAAA"
-  - genero = GENERO DO SEU PACIENTE ("masculino" ou "feminino")
+### Certifique-se
+- O arquivo enviado está em pdf
+- DPI Recomendada: 300
+- O arquivo enviado não possui defeitos que possam comprometer a leitura
+- O INIA utiliza de algorítmos de visão compultacional, por isso é importante que o pdf esteja legível e na orientação devida para melhores resultados. Riscos ou falhas podem comprometer os resultados, assim como pdfs com textos ilegíveis ou embaçados.
 
-## Retorno
-- Adicione o diretório desejado dentro da variável diretorio, ex: diretorio = "files"
-- As tabelas são salvas em pdf, e o diagnóstico em docx.
+### Paramêtros
+- diretorio: Pasta onde você deseja salvar os arquivos de saída do INIA, recomenda-se salvar em uma pasta para melhor organização.
+- exame: Diretório em que o arquivo pdf está salvo.
+- output: código de retorno, cada código está associado a tipos de retornos, segue o padrão:
+    - pdf-3-docx-1(default): Retornos = anormal_file.pdf, normal_file.pdf, diagnostic.docx, unknown.pdf
+    - csv-2-pdf-1-docx-1: Retornos = anormal_file.csv, anormal_file.csv, diagnostic.docx, unknown.pdf
+- paciente: Coloque os metadados dos pacientes, os dados podem influenciar no resultado final das análises, por isso é importante alimentar o campo com dados relevantes.
+
+## Conclusões e Avisos
+- O INIA é uma excelente ferramenta para otimizar o atendimento ao paciente, contudo não substitui a responsabilidade médica na análise dos exames e/ou prescrição/diagnóstico do paciente.
