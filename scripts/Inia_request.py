@@ -3,7 +3,7 @@ import base64
 import json
 import os
 
-def resum_exame_execute(diretorio, pdf_path, paciente={}, output="pdf-3-docx-1"):
+def resum_exame_execute(diretorio, pdf_path, paciente={}, output="df-pdf.df-pdf.docx.pdf", unknown=True):
     
     url = "https://main-inia-app.vercel.app/api/"
     
@@ -15,8 +15,6 @@ def resum_exame_execute(diretorio, pdf_path, paciente={}, output="pdf-3-docx-1")
         print(f"Arquivo {pdf_path} não encontrado.")
         return
     
-
-    
     # Converter os dados do paciente para base64
     dados_paciente_bytes = json.dumps(paciente).encode('utf-8')
     
@@ -26,10 +24,11 @@ def resum_exame_execute(diretorio, pdf_path, paciente={}, output="pdf-3-docx-1")
         'name': 'EXAME.pdf',
         'mime': 'application/pdf',
         'paciente': base64.b64encode(dados_paciente_bytes).decode('utf-8'),
-        'output': output 
+        'output': output,
+        'unknown': unknown
     }
 
-    end_with = {"pdf-3-docx-1":['pdf','pdf','docx','pdf'], "csv-2-pdf-1-docx-1": ['csv','csv','docx','pdf']}
+    end_with = {"df-pdf.df-pdf.docx.pdf":['pdf','pdf','docx','pdf'], "df-csv.df-csv.docx.pdf": ['csv','csv','docx','pdf'], "df-pdf.df-pdf.pdf.pdf": ['pdf', 'pdf', 'pdf', 'pdf']}
 
     # Enviar a requisição POST
     try:
@@ -37,11 +36,15 @@ def resum_exame_execute(diretorio, pdf_path, paciente={}, output="pdf-3-docx-1")
         response.raise_for_status()  # Verifica se houve erro HTTP
         result = response.json()
 
+        response_code = response.headers["Output-Code"]
+
         # Recuperar arquivos retornados
         normal_file_base64 = result.get('normal_file')
         anormal_file_base64 = result.get('anormal_file')
         diagnostic_file_base64 = result.get('diagnostic')
-        unknown_file_base64 = result.get('unknown')
+        
+        if unknown:
+            unknown_file_base64 = result.get('unknown')
 
         if diretorio:
             if not os.path.exists(diretorio):
@@ -50,20 +53,21 @@ def resum_exame_execute(diretorio, pdf_path, paciente={}, output="pdf-3-docx-1")
             diretorio = ''
         # Salvar arquivos, se existirem
         if normal_file_base64:
-            with open(f'{diretorio}/normal_file.{end_with[output][0]}', 'wb') as normal_file:
+            with open(f'{diretorio}/normal_file.{end_with[response_code][0]}', 'wb') as normal_file:
                 normal_file.write(base64.b64decode(normal_file_base64))
 
         if anormal_file_base64:
-            with open(f'{diretorio}/anormal_file.{end_with[output][1]}', 'wb') as anormal_file:
+            with open(f'{diretorio}/anormal_file.{end_with[response_code][1]}', 'wb') as anormal_file:
                 anormal_file.write(base64.b64decode(anormal_file_base64))
 
         if diagnostic_file_base64:
-            with open(f'{diretorio}/diagnostic.{end_with[output][2]}', 'wb') as diagnostic_file:
+            with open(f'{diretorio}/diagnostic.{end_with[response_code][2]}', 'wb') as diagnostic_file:
                 diagnostic_file.write(base64.b64decode(diagnostic_file_base64))
         
         if unknown_file_base64:
-            with open(f'{diretorio}/unknown.{end_with[output][3]}', 'wb') as unknown_file:
-                unknown_file.write(base64.b64decode(unknown_file_base64))
+            if unknown_file_base64:
+                with open(f'{diretorio}/unknown.{end_with[response_code][3]}', 'wb') as unknown_file:
+                    unknown_file.write(base64.b64decode(unknown_file_base64))
         
 
         print("Arquivos salvos com sucesso.")
@@ -80,14 +84,20 @@ def resum_exame_execute(diretorio, pdf_path, paciente={}, output="pdf-3-docx-1")
 
 #diretorio do arquivo
 diretorio = 'files'
-exame = r"exams/SABIN4.pdf"
-output = "pdf-3-docx-1" # csv-2-pdf-1-docx-1 | pdf-3-docx-1 (Mais detalhes no ReadME)
+exame = r"SEU PDF.pdf"
+output = "df-pdf.df-pdf.docx.pdf" # df-pdf.df-pdf.pdf.pdf
 
 #Preencha os dados do paciente                
+data_de_nascimento = '16/04/1966'
+genero = 'masculino' #masculino ou feminino
+
+    # Dados do paciente
 dados_paciente = {
-        'data_de_nascimento': '18/08/1974', #dados de exemplo
-        'genero': 'masculino', #'feminino' ou 'masculino'
+        'data_de_nascimento': data_de_nascimento, 
+        'genero': genero, #'feminino' ou 'masculino'
     }
 
+unknown = True
+
 # Chamada da função
-resum_exame_execute(diretorio = diretorio, pdf_path = exame, paciente = dados_paciente, output= output) #Passe o path do arquivo pdf
+resum_exame_execute(diretorio = diretorio, pdf_path = exame, paciente = dados_paciente, output= output, unknown = unknown) #Passe o path do arquivo pdf

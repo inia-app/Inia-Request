@@ -12,8 +12,8 @@
 - diretorio: Pasta onde você deseja salvar os arquivos de saída do INIA, recomenda-se salvar em uma pasta para melhor organização.
 - exame: Diretório em que o arquivo pdf está salvo.
 - output: código de retorno, cada código está associado a tipos de retornos, segue o padrão:
-    - pdf-3-docx-1(default): Retornos = anormal_file.pdf, normal_file.pdf, diagnostic.docx, unknown.pdf
-    - csv-2-pdf-1-docx-1: Retornos = anormal_file.csv, anormal_file.csv, diagnostic.docx, unknown.pdf
+    - df-pdf.df-pdf.docx.pdf: Retornos = anormal_file.pdf, normal_file.pdf, diagnostic.docx, unknown.pdf
+    - df-pdf.df-pdf.pdf.pdf: Retornos = anormal_file.pdf, anormal_file.pdf, diagnostic.pdf, unknown.pdf
 - paciente: Coloque os metadados dos pacientes, os dados podem influenciar no resultado final das análises, por isso é importante alimentar o campo com dados relevantes.
 
 ## Conclusões e Avisos
