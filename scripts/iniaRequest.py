@@ -1,32 +1,67 @@
-# Inia V1.0.3
+import requests
+import base64
+import json
+import os
 
-## Inia Auth
+url = "https://n8n.inia.app/webhook/"
 
-### Criando Conta
-Crie uma conta fazendo uma requisição para o webhook:
-```python
-WEBHOOK_INSCRICAO = "https://n8n.inia.app/webhook/organization/signup" 
-def create_account():
-    
+endpoints = {
+    'organization': {
+        'login': 'organization/login',
+        'signup':'organization/signup',
+        'recovery-password': '' #EM BREVE
+        },
+'client': {
+    'add':'organization/clients/add',
+    'activate': 'organization/clients/activate',
+    'list': 'organization/clients/list',
+    'remove': '',  #EM BREVE
+    'deactivate':'' #EM BREVE
+},
+
+'api': {
+        'request': ''
+    }
+
+}
+
+
+def requestOrganization(endpoint = '', payload = {}, token = None, method = 'POST'):    
+    # Enviar a requisição POST
+    try:
+        if method =='POST':
+            response = requests.post(url + endpoint, json=payload)
+        else:
+            response = requests.post(url + endpoint, json=payload)
+
+        response.raise_for_status()  # Verifica se houve erro HTTP
+
+    except requests.exceptions.HTTPError as http_err:
+        print(f"Erro HTTP: {http_err}")
+        print(response.text) #Em muitos casos a causa do erro vem como resposta do webhook
+    except requests.exceptions.RequestException as req_err:
+        print(f"Erro na requisição: {req_err}")
+    except ValueError:
+        print("Erro: A resposta não é um JSON válido.")
+        print(f"Conteúdo da resposta: {response.text}")
+
+
+# Adicionado Usuário
+def create_account(email, password):
     #Coloque a senha com no minimo 6 caracteres
-    payload = {'auth': {'email': 'your@email.com', 'password': 'password'}}
-    response = requests.post(WEBHOOK_INSCRICAO, json=payload)
-    
+    payload = {'auth': {'email': email, 'password': password}}
+    endpoint = endpoints.get('organization').get('signup')
+    response = requests.post(url + endpoint, json=payload)
     try:
         response.raise_for_status()
     except:
         print(response.text)
     
     print(response.text)
-```
-### Login
-Realize o login na conta para obter o token JWT com o acesso todos os recursos do INIA.
- - Para começar, tenha certeza de ter confirmado sua inscriçao pelo seu email. 
- - Caso ele tenha demorado a chegar, verifique se não está na caixa de spam.
 
-```python
-def login():
-    payload = {'auth': {'email': 'mouzartist1022@gmail.com', 'password': 'Mz#hz5c'}}
+
+def login(email, password):
+    payload = {'auth': {'email': email , 'password': password}}
     endpoint = endpoints.get('organization').get('login')
     response = requests.post(url + endpoint, json=payload)
     try:
@@ -36,71 +71,39 @@ def login():
     
     return response.json().get('acess_token')
 
-```
-
-
-## Interagindo com API
-Com o token de acesso, agora precisamos adicionar um cliente a conta que criamos.
-
-### Adicionando Cliente
-A organização não pode realizar requisições diretamente, mas sim através de clientes. Para cadastrar um usuário, basta definir um username e solicitar a adição. O username é um identificador único que permite encontrar com facilidade os dados sobre os seus clientes.
-
-```python
 def add_user(client, acessToken):
     payload = {'client': {'username':client}}
     header = {'Authorization': f'Bearer {acessToken}'}
-    url = 'https://n8n.inia.app/webhook/organization/clients/add'
-    response = requests.post(url, json=payload, headers=header)
-    try:
-        response.raise_for_status()
-    except:
-        print(response.text)
-    print(response.text) 
-    
-```
-
-Se você recebeu um print escrito "user created", deu tudo certo. Se não, observe os logs, eles descrevem os erros mais comuns.
-
-### Ativando Cliente
-Com o cliente criado, ele precisa ser ativado para que possa interagir com a API.
-Para ativar um cliente, é necessário que:
-- O cliente pertença a sua organização.
-- O username do cliente
-- O plano do cliente:
-    - basic: 200 requisições/mês
-    - professional: 500 requisições/mês
-    - enterprise: 1000 requisições/mês
-
-```python
-def activate_user(client, plan, acessToken):
-    payload = {'client': {'username':client, 'plan': plan}}
-    header = {'Authorization': f'Bearer {acessToken}'}
-    url = "https://n8n.inia.app/webhook/organization/clients/activate"
-    response = requests.post(url, json=payload, headers=header)
+    endpoint = endpoints.get('client').get('add')
+    response = requests.post(url + endpoint, json=payload, headers=header)
     try:
         response.raise_for_status()
     except:
         print(response.text)
     print(response.text)
-```
-### Chamando API para Análise de Exames
 
-#### Disclaimers
-- O arquivo enviado deve está em pdf
-- DPI Recomendada: 300
-- O arquivo enviado não possui defeitos que possam comprometer a leitura
-- O INIA utiliza de algorítmos de visão compultacional, por isso é importante que o pdf esteja legível e na orientação devida para melhores resultados. Riscos ou falhas podem comprometer os resultados, assim como pdfs com textos ilegíveis ou embaçados.
+def activate_user(client, plan, acessToken):
+    payload = {'client': {'username':client, 'plan': plan}}
+    header = {'Authorization': f'Bearer {acessToken}'}
+    endpoint = endpoints.get('client').get('activate')
+    response = requests.post(url + endpoint, json=payload, headers=header)
+    try:
+        response.raise_for_status()
+    except:
+        print(response.text)
+    print(response.text)
 
-#### Paramêtros
-- diretorio: Pasta onde você deseja salvar os arquivos de saída do INIA, recomenda-se salvar em uma pasta para melhor organização.
-- exame: Diretório em que o arquivo pdf está salvo.
-- output: código de retorno, cada código está associado a tipos de retornos, segue o padrão:
-    - df-pdf.df-pdf.docx.pdf: Retornos = anormal_file.pdf, normal_file.pdf, diagnostic.docx, unknown.pdf
-    - df-pdf.df-pdf.pdf.pdf: Retornos = anormal_file.pdf, anormal_file.pdf, diagnostic.pdf, unknown.pdf
-- paciente: Coloque os metadados dos pacientes, os dados podem influenciar no resultado final das análises, por isso é importante alimentar o campo com dados relevantes.
+def get_clients(acessToken):
+    header = {'Authorization': f'Bearer {acessToken}'}
+    endpoint = endpoints.get('client').get('list')
+    response = requests.get(url + endpoint, headers=header)
+    try:
+        response.raise_for_status()
+    except:
+        print(response.text)
+    
+    return response.json()
 
-#### Codigo de Exemplo
-```python
 def api_call(client, acessToken, diretorio, pdf_path, paciente={}, output="df-pdf.df-pdf.docx.pdf", unknown=True):
     
     header = {'Authorization': f'Bearer {acessToken}'}
@@ -179,12 +182,40 @@ def api_call(client, acessToken, diretorio, pdf_path, paciente={}, output="df-pd
     except ValueError:
         print("Erro: A resposta não é um JSON válido.")
         print(f"Conteúdo da resposta: {response.text}")
-```
 
+# variaveis
+#diretorio do arquivo
+diretorio = 'files'
+exame = r"MEU-PDF.pdf"
+output = "df-pdf.df-pdf.pdf.pdf" # df-pdf.df-pdf.docx.pdf
 
-## Conclusão
-- O INIA é uma excelente ferramenta para otimizar o atendimento ao paciente, contudo não substitui a responsabilidade médica na análise dos exames e/ou prescrição/diagnóstico do paciente.
+#Preencha os dados do paciente                
+data_de_nascimento = 'DD/MM/AAAA'
+genero = 'feminino' #masculino ou feminino
 
-*Em breve teremos uma grande atualização em nossos sistemas* INIA [2025]
+# Dados do paciente
+dados_paciente = {
+        'data_de_nascimento': data_de_nascimento, 
+        'genero': genero, #'feminino' ou 'masculino'
+    }
 
+unknown = True
 
+#Criar conta
+create_account('myemail@gmail.com', 'password') #Nao esqueça de confirmar a inscricao no email
+
+#login
+jwt_token = login('myemail@gmail.com', 'password')
+acess_token = base64.b64decode(jwt_token).decode('utf-8')
+
+#adiciona usuario
+add_user('my_client', acessToken=acess_token) #Adiciona usuario
+
+#ativa o usuario
+activate_user('my-client', 'basic' , acess_token) # #basic, professional or enterprise
+
+#lista usuarios
+print(get_clients(acess_token))
+
+# Chamada da API
+api_call(client='inia-test-410', acessToken=acess_token, diretorio = diretorio, pdf_path = exame, paciente = dados_paciente, output= output, unknown = unknown) #Passe o path do arquivo pdf

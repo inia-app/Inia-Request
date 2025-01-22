@@ -27,16 +27,11 @@ def resum_exame_execute(diretorio, pdf_path, paciente={}, output="df-pdf.df-pdf.
         'output': output,
         'unknown': unknown
     }
-
-    end_with = {"df-pdf.df-pdf.docx.pdf":['pdf','pdf','docx','pdf'], "df-csv.df-csv.docx.pdf": ['csv','csv','docx','pdf'], "df-pdf.df-pdf.pdf.pdf": ['pdf', 'pdf', 'pdf', 'pdf']}
-
     # Enviar a requisição POST
     try:
         response = requests.post(url, json=data)
         response.raise_for_status()  # Verifica se houve erro HTTP
         result = response.json()
-
-        response_code = response.headers["Output-Code"]
 
         # Recuperar arquivos retornados
         normal_file_base64 = result.get('normal_file')
@@ -53,20 +48,20 @@ def resum_exame_execute(diretorio, pdf_path, paciente={}, output="df-pdf.df-pdf.
             diretorio = ''
         # Salvar arquivos, se existirem
         if normal_file_base64:
-            with open(f'{diretorio}/normal_file.{end_with[response_code][0]}', 'wb') as normal_file:
+            with open(f'{diretorio}/normal_file.pdf', 'wb') as normal_file:
                 normal_file.write(base64.b64decode(normal_file_base64))
 
         if anormal_file_base64:
-            with open(f'{diretorio}/anormal_file.{end_with[response_code][1]}', 'wb') as anormal_file:
+            with open(f'{diretorio}/anormal_file.pdf', 'wb') as anormal_file:
                 anormal_file.write(base64.b64decode(anormal_file_base64))
 
         if diagnostic_file_base64:
-            with open(f'{diretorio}/diagnostic.{end_with[response_code][2]}', 'wb') as diagnostic_file:
+            with open(f'{diretorio}/diagnostic.pdf', 'wb') as diagnostic_file:
                 diagnostic_file.write(base64.b64decode(diagnostic_file_base64))
         
         if unknown_file_base64:
             if unknown_file_base64:
-                with open(f'{diretorio}/unknown.{end_with[response_code][3]}', 'wb') as unknown_file:
+                with open(f'{diretorio}/unknown.pdf', 'wb') as unknown_file:
                     unknown_file.write(base64.b64decode(unknown_file_base64))
         
 
@@ -98,6 +93,7 @@ dados_paciente = {
     }
 
 unknown = True
+
 
 # Chamada da função
 resum_exame_execute(diretorio = diretorio, pdf_path = exame, paciente = dados_paciente, output= output, unknown = unknown) #Passe o path do arquivo pdf
