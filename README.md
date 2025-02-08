@@ -26,7 +26,7 @@ Realize o login na conta para obter o token JWT com o acesso todos os recursos d
 
 ```python
 def login():
-    payload = {'auth': {'email': 'mouzartist1022@gmail.com', 'password': 'Mz#hz5c'}}
+    payload = {'auth': {'email': 'nome@seuemail.com', 'password': 'minhasenha'}}
     endpoint = endpoints.get('organization').get('login')
     response = requests.post(url + endpoint, json=payload)
     try:
@@ -44,6 +44,12 @@ Com o token de acesso, agora precisamos adicionar um cliente a conta que criamos
 
 ### Adicionando Cliente
 A organização não pode realizar requisições diretamente, mas sim através de clientes. Para cadastrar um usuário, basta definir um username e solicitar a adição. O username é um identificador único que permite encontrar com facilidade os dados sobre os seus clientes.
+
+**LEMBRE SE DE DECODIFICAR(BASE64) SEU ACESS TOKEN ANTES DE USÁ-LO**
+Exemplo:
+```python
+acess_token_decoded = base64.b64decode(acess_token).decode('utf-8')
+```
 
 ```python
 def add_user(client, acessToken):
