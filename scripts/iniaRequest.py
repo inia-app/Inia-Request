@@ -203,11 +203,8 @@ unknown = True
 
 #Criar conta
 create_account('myemail@gmail.com', 'password') #Nao esqueça de confirmar a inscricao no email
-
 #login
-jwt_token = login('myemail@gmail.com', 'password')
-acess_token = base64.b64decode(jwt_token).decode('utf-8')
-
+acess_token = login('myemail@gmail.com', 'password')
 #adiciona usuario
 add_user('my_client', acessToken=acess_token) #Adiciona usuario
 
